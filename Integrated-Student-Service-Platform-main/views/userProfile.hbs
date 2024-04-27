@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="/user.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class = "popup">
+            <div class="close-btn">&times;</div>
+            <div class="form">
+                <h2>Are you sure you want to log out?</h2>
+                <button class="btn-2" id="logoutButton">Logout</button>
+            </div>
+        </div>
+
+        <div class="leftbox">
+            <nav>
+                <a href="/userProfile" class = "active">
+                    <i class = "fa fa-user"></i>
+                </a>
+                <a href="/homepage">
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                </a>
+                <a href="/routine">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                 </a>
+                 <a href="/userUpdate">
+                    <i class="fa fa-pencil" aria-hidden="true"></i> 
+                 </a>
+                 <a href="#Logout?" id = "show-login">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i> 
+                 </a>
+            </nav>
+        </div>
+        <div class="rightbox">
+            <div class="profile" id="profile">
+                <h1>Personal Info</h1>
+                <h2>Full Name</h2>
+                <p id="fullName"></p>
+                <h2>Student ID</h2>
+                <p id="studentID"></p>
+                <h2>username</h2>
+                <p id="username"></p>
+                <h2>Email</h2>
+                <p id="email"></p>
+                <h2>Phone</h2>
+                <p id="phone"></p>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Created by
+            <a href="">Abrar Ahmed</a>.
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+
+        async function fetchData () {
+            try {
+
+                const response = await axios.get('/auth/api/auth');
+                const userData = response.data[0];   
+                const fullName = document.getElementById('fullName');
+                const studentID = document.getElementById('studentID');
+                const username = document.getElementById('username');
+                const email = document.getElementById('email');
+                const phone = document.getElementById('phone');
+
+                fullName.innerText = userData.StudentName;
+                studentID.innerText = userData.StudentID;
+                username.innerText = userData.Username;
+                email.innerText = userData.Email;
+                phone.innerText = userData.Phone;
+
+            } catch (error) {
+
+                console.error('Error fetching user data:', error);
+
+            }
+        }
+
+        fetchData()
+
+    </script>
+    <script src="/app/user.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="/homepage.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <a class="logo" href="#">CampusConnect<span>.</span></a>
+        <ul class="menu-links">
+          <span id="close-menu-btn" class="material-symbols-outlined">close</span>
+          <li>
+            <a href="/routine">Routine</i></a>
+          </li>
+          <li>
+            <a href="#">Transportation</a>
+            <ul class="dropdown-menu">
+                <li><a href="/bus-routes">Bus Routes</a></li>
+            </ul>
+          </li>
+        </ul>
+        
+        <span id="hamburger-btn" class="material-symbols-outlined">menu</span>
+      </nav>
+    </header>
+
+    <section class="hero-section">
+      <div class="content">
+        <h2>Optimize Your Student Experience</h2>
+        <p>
+          From crafting your class routines to checking out the cafeteria menu, booking bus seats, and securing parking slots – we've got it all covered.
+        </p>
+        <button onclick="redirectToSignupPage()">Sign-Up</button>
+      </div>
+    </section>
+
+    <script>
+      const header = document.querySelector("header");
+      const hamburgerBtn = document.querySelector("#hamburger-btn");
+      const closeMenuBtn = document.querySelector("#close-menu-btn");
+      hamburgerBtn.addEventListener("click", () => header.classList.toggle("show-mobile-menu"));
+      closeMenuBtn.addEventListener("click", () => hamburgerBtn.click());
+      function redirectToSignupPage() {
+        window.location.href = '/signup-signin';
+      }
+    </script>
+    
+  </body>
+</html>

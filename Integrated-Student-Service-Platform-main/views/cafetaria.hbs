@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafetaria</title>
+    <link rel="stylesheet" href="/cafetaria.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <section id="Home">
+        <nav>
+            <div class="logo">
+                <img src="/logo.png">
+            </div>
+            <ul>
+                <li><a href="/homepage">Home</a></li>
+                <li><a href="#About">About</a></li>
+                <li><a href="#Menu">Menu</a></li>
+                <li><a href="/foodcart">Cart</a></li>
+                <li><a href="#Contact Us">Contact Us</a></li>
+            </ul>
+
+            <div class="icon">
+                
+                <a href="/foodcart"><i class="fa-solid fa-cart-shopping"></i></a>
+            </div>
+
+        </nav>
+        <div class="main">
+            <div class="men_text">
+                <h1>Get Fresh<span>Food</span><br>in a Easy Way</h1>
+            </div>
+            <div class="main_image">
+                <img src="/main_img.png">
+            </div>
+        </div>
+        <p>
+            Welcome to the heart of Brac University – our vibrant cafeteria! A bustling hub for students and faculty alike, it's where delicious aromas meet lively conversations, creating the perfect backdrop for both relaxation and intellectual exchange.
+        </p>
+        <div class="main_btn">
+            <a href="#Menu">Order Now</a>
+            <i class="fa-solid fa-angle-right"></i> 
+        </div>
+    </section>
+
+    <div class="about" id="About">
+        <div class="about_main">
+
+            <div class="image">
+                <img src="/Food-Plate.png">
+            </div>
+
+            <div class="about_text">
+                <h1><span>About</span>Us</h1>
+                <h3>Why Choose us?</h3>
+                <p>
+                    Choosing this cafeteria at Brac University offers more than just dining; it's about embracing a vibrant community space that enhances the 
+                    university experience. Here, quality meets variety in a menu that spans global and local cuisines, ensuring every taste is delighted. The
+                    ambiance is tailored for comfort and interaction, making it ideal for both quick bites and leisurely meals. It's a place where culture, 
+                    conversation, and cuisine intertwine, providing a welcoming atmosphere for all. Moreover, its convenient location at the heart of the 
+                    campus makes it an accessible spot for rejuvenation between classes, making it a natural choice for students and faculty alike.
+                </p>
+            </div>
+        </div>
+        <a href="#Menu" class="about_btn">Order Now</a>
+    </div>
+
+    <div class="menu" id="Menu">
+        <h1>Our<span>Menu</span></h1>
+        <div class="menu_box" id="menuBox">
+            <!-- FOOD Will be updated here -->
+        </div>
+    </div>
+
+    <footer>
+        <div class="Contact Us" id="Contact Us">
+            <h1><span>Contact</span>Us</h1>
+            <div class="footer_main">
+                <div class="footer_tag">
+                    <h2>Location</h2>
+                    <p>6th Floor</p>
+                    <p>Brac University</p>    
+                </div>
+                <div class="footer_tag">
+                    <h2>Contact</h2>
+                    <p>+8801749750554</p>
+            
+                    <p>bracu.contact@gmail.com</p>
+                </div>
+
+                <div class="footer_tag">
+                    <h2>Follows</h2>
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <i class="fa-brands fa-instagram"></i>
+                    <i class="fa-brands fa-linkedin-in"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        async function FoodInfo() {
+            try {
+                const response = await axios.get('/auth/api/FoodInfo');
+                const foodData = response.data;
+
+                const menuBox = document.getElementById('menuBox');
+
+                foodData.forEach(food => {
+
+                    const menuCard = document.createElement('div');
+
+                    menuCard.className = 'menu_card';
+                    menuCard.innerHTML = 
+                        `<div class="menu_image">
+                            <img src="${food.FoodPicture}" alt="${food.FoodName}">
+                        </div>
+                        <div class="small_card">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div class="menu_info">
+                            <h2>${food.FoodName}</h2> 
+                            <h3>TK.${food.FoodCost}</h3>
+                            <div class="menu_icon">
+                                ${generateStarIcons(food.FoodRating)}
+                            </div>
+                            <a href="#Menu" class="menu_btn" onclick="addToCart('${food.FoodPicture}', '${food.FoodName}', ${food.FoodCost})">Add To Cart</a>
+                        </div>`;
+
+                    menuBox.appendChild(menuCard);
+                });
+
+            } catch (error) {
+                console.error('Error fetching food:', error);
+            }
+        }
+
+        function generateStarIcons(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 !== 0;
+
+            let starIcons = '';
+            for (let i = 0; i < fullStars; i++) {
+                starIcons += '<i class="fa-solid fa-star"></i>';
+            }
+
+            if (halfStar) {
+                starIcons += '<i class="fa-solid fa-star-half-stroke"></i>';
+            }
+
+            return starIcons;
+        }
+
+        function addToCart(foodPicture, foodName, foodCost ) {
+            
+            const data = {foodPicture : foodPicture,foodName: foodName,foodCost: foodCost};
+
+            
+            axios.post('/auth/api/addToCart', data)
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.error('Error adding to cart:', error);
+                });
+        }
+
+        FoodInfo();
+        
+    </script>
+
+</body>
+</html>

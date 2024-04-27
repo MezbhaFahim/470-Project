@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/busTicket.css">
+</head>
+<body>
+    <div class="container">
+        <form action="/auth/buyBusTickets" method="POST">
+            <div class="row">
+                <div class="col">
+                    <h3 class="title">Student Information</h3>
+                    <div class="inputBox">
+                        <span>Full Name :</span>
+                        <input type="text" id = "fullName" name = "fullName" placeholder="" readonly>
+                    </div>
+                    <div class="inputBox">
+                        <span>Student ID :</span>
+                        <input type="number" id = "studentID" name = "studentID" placeholder="" readonly>
+                    </div>
+                    <div class="inputBox">
+                        <span>Email :</span>
+                        <input type="email" id = "email" name = "email" placeholder="" readonly>
+                    </div>
+                    <div class="inputBox">
+                        <span>Phone number  :</span>
+                        <input type="number" id = "phone" name = "phone" placeholder="" readonly>
+                    </div>
+                    <div class="inputBox">
+                        <span>Bus time :</span>
+                        <select id = "time" name = "time" type = "text" class = custom-select required>
+                        <option value="1">6:30 AM</option>
+                        <option value="2">5:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 class="title">payment</h3>
+                    <div class="inputBox">
+                        <span>Select your mode of Payment method</span>
+                        <div class="payment-buttons">
+                            <button type="button" class="payment-btn" id="bkashBtn" onclick="selectPayment('bkash')">bkash</button>
+                            <button type="button" class="payment-btn" id="nagadBtn" onclick="selectPayment('nagad')">nagad</button>
+                        </div>
+                    </div> 
+                    <div class="inputBox">
+                        <span>Transaction ID :</span>
+                        <input type="text" name = "transactionInput" placeholder="Select Your Payment Method" id="transactionInput" required>
+                    </div>
+                </div>
+            </div>
+            <input type="submit" value="proceed to checkout" class="submit-btn">
+        </form>
+    </div> 
+
+    <script src="/App/busTicket.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        async function fetchData () {
+            try {
+                const response = await axios.get('/auth/api/auth');
+                
+                const userData = response.data[0];
+                      
+                const fullName = document.getElementById('fullName');
+                const studentID = document.getElementById('studentID');
+                const email = document.getElementById('email');
+                const phone = document.getElementById('phone');
+
+                fullName.value = userData.StudentName;
+                studentID.value = userData.StudentID;
+                email.value = userData.Email;
+                phone.value = userData.Phone;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+    fetchData()
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>shopping cart</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+   <link rel="stylesheet" href="/foodcart.css">
+
+</head>
+<body>
+
+<div class="container">
+
+<section class="shopping-cart">
+
+   <h1 class="heading">shopping cart</h1>
+
+   <table>
+
+      <thead>
+         <th>image</th>
+         <th>name</th>
+         <th>price</th>
+         <th>quantity</th>
+         <th>total price</th>
+         <th>action</th>
+      </thead>
+
+      <tbody>
+         <tr>
+            <td><img src="" height="100" alt=""></td>
+            <td></td>
+            <td></td>
+            <td>
+               <form action="" method="post">
+                  
+               </form>   
+            </td>
+            <td></td>
+            <td><a href="#" onclick="removeItemFromCart('${food.FoodName}')" class="delete-btn"> <i class="fas fa-trash"></i> remove</a></td>
+        </tr>
+
+         
+         <tr class="table-bottom">
+            <td><a href="/cafetaria" class="option-btn" style="margin-top: 0;">continue shopping</a></td>
+            <td colspan="3">grand total</td>
+            <td></td>
+         </tr>
+      </tbody>
+
+   </table>
+
+</section>
+
+</div>
+
+<div class="container">
+
+<section class="checkout-form">
+
+   <form action="" method="post">
+
+      <div class="flex">
+         <div class="inputBox">
+            <span>your name</span>
+            <input type="text" placeholder="" name="name" required>
+         </div>
+         <div class="inputBox">
+            <span>Student ID</span>
+            <input type="number" placeholder="" name="studentID" required>
+         </div>
+         <div class="inputBox">
+            <span>your number</span>
+            <input type="number" placeholder="" name="number" required>
+         </div>
+      </div>
+      <input type="submit" value="Confirm Order" name="order_btn" class="btn" id="confirmOrderBtn">
+
+   </form>
+
+</section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    async function fetchFoodData() {
+        try {
+            const response = await axios.get('/auth/api/FoodData');
+            const foodData = response.data;
+            let grandtotal = 0; 
+
+            const tableBody = document.querySelector('.shopping-cart tbody');
+            tableBody.innerHTML = '';
+
+            foodData.forEach(food => {
+                const row = document.createElement('tr');
+                row.innerHTML = 
+                    `<td><img src="${food.FoodPicture}" height="100" alt="${food.FoodName}"></td>
+                    <td>${food.FoodName}</td>
+                    <td>${food.Bill}</td>
+                    <td>
+                        <form action="" method="post">
+                            <input type="hidden" name="update_quantity_id" value="${food.StudentID}">
+                            <input type="number" name="update_quantity" min="1" value="${food.Quantity}">
+                        </form>
+                    </td>
+                    <td>${food.Quantity * food.Bill}</td>
+                    <td><a href="#" onclick="removeItemFromCart('${food.FoodName}')" class="delete-btn"> <i class="fas fa-trash"></i> remove</a></td>`;
+                tableBody.appendChild(row);
+
+                grandtotal += (food.Quantity * food.Bill);
+                
+            });
+
+            const continueShoppingRow = document.createElement('tr');
+            continueShoppingRow.classList.add('table-bottom');
+            continueShoppingRow.innerHTML =
+                `<td><a href="/cafetaria" class="option-btn" style="margin-top: 0;">continue shopping</a></td>
+                <td colspan="3">Grand Total</td>
+                <td>${grandtotal}</td> <!-- Update grand total here -->`;
+            tableBody.appendChild(continueShoppingRow);
+        } catch (error) {
+            console.error('Error fetching food data:', error);
+        }
+    }
+
+    fetchFoodData();
+
+    async function fetchpersonalinfo() {
+        try {
+            const response = await axios.get('/auth/api/auth');
+            const personalinfo = response.data;
+
+            const nameInput = document.querySelector('input[name="name"]');
+            nameInput.value = personalinfo[0]['StudentName']; 
+            
+            const studentIDInput = document.querySelector('input[name="studentID"]');
+            studentIDInput.value = personalinfo[0]['StudentID']; 
+
+            const numberInput = document.querySelector('input[name="number"]');
+            numberInput.value = personalinfo[0]['Phone'];                                              
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    }
+
+    fetchpersonalinfo();
+
+    async function removeItemFromCart(foodName) {
+        try {
+            const response = await axios.post('/auth/api/removeFromCart', { foodName: foodName });
+            fetchFoodData();
+        } catch (error) {
+            console.error('Error removing item from cart:', error);
+        }
+    }
+
+    async function placeorder() {
+        try {
+            const response = await axios.get('/auth/api/FoodData');
+            const foodData = response.data;
+            const personalInfoResponse = await axios.get('/auth/api/auth');
+            const personalInfo = personalInfoResponse.data;
+            const order = {studentID: personalInfo[0]['StudentID'], grandtotal: 0, foodItems: []};
+
+            foodData.forEach(food => {
+                order.grandtotal += (food.Quantity * food.Bill);
+                order.foodItems.push({ name: food.FoodName, quantity: food.Quantity });
+            });
+
+            const orderResponse = await axios.post('/auth/api/placeOrder', order);
+
+        } catch (error) {
+            console.error('Error placing order:', error);
+        }
+    }
+
+    document.getElementById("confirmOrderBtn").addEventListener("click", function(event) {event.preventDefault(); placeorder(); });
+        
+</script>
+  
+</body>
+</html>
+
+

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Booking</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            border: none;
+            text-transform: capitalize;
+            transition: all .2s linear;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/parking-background.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .header-row h2 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        #countdown {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .booking-form {
+            padding: 20px;
+            width: 60%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
+        }
+
+        .booking-form label {
+            font-size: 15px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .booking-form input {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            font-size: 15px;
+            text-transform: none;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .booking-form input:focus {
+            border: 1px solid #000;
+        }
+
+        .booking-form button {
+            width: 100%;
+            padding: 12px;
+            font-size: 17px;
+            background: #007BFF;
+            color: #fff;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .booking-form button:hover {
+            background: #0056b3;
+        }
+
+        .payment-method-section {
+            padding: 20px;
+            width: 60%;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
+        }
+
+        .payment-method-section h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .payment-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .payment-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .payment-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .payment-btn.active {
+            background-color: #0056b3;
+        }
+
+        .inputBox {
+            margin: 15px 0;
+        }
+
+        .inputBox span {
+            margin-bottom: 10px;
+            display: block;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .inputBox input {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            font-size: 15px;
+            text-transform: none;
+        }
+
+        .inputBox input:focus {
+            border: 1px solid #000;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 17px;
+            background: #056114;
+            color: #fff;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background: #1fa335;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-row">
+        <h2>Booking Information</h2>
+        <div id="countdown">Time remaining: <span id="timer">120</span> seconds</div>
+    </div>
+
+    <div class="booking-form">
+        <form id="bookingForm">
+            <label for="fullname">Full Name:</label>
+            <input type="text" id="fullname" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" required>
+
+            <label for="licensePlate">License Plate:</label>
+            <input type="text" id="licensePlate" required>
+
+            <label for="studentId">Student ID:</label>
+            <input type="text" id="studentId" required>
+
+            <button type="button" id="confirmBtn" onclick="showPaymentSection()">Confirm Booking</button>
+        </form>
+
+        <div class="payment-method-section" id="paymentSection" style="display: none;">
+            <h2>Payment Confirmation</h2>
+
+            <div class="inputBox">
+                <span>Transaction ID:</span>
+                <input type="text" placeholder="Enter Transaction ID" id="transactionInput" required>
+            </div>
+            <button type="button" onclick="proceedToCheckout()" class="submit-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+
+        function startCountdown(duration, display) {
+
+            var timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    window.location.reload(true);
+                }
+            }, 1000);
+
+        }
+
+        async function fetchDataAndStartCountdown() {
+            try {
+                const response = await axios.get('/auth/api/auth');
+                const userData = response.data[0];
+
+                if (userData) {
+                    var duration = 120;
+                    var display = document.querySelector('#timer');
+                    startCountdown(duration, display);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function proceedToCheckout() {
+            const transactionID = document.getElementById('transactionInput').value;
+            const studentID = document.getElementById('studentId').value;
+
+            try {
+
+                const response = await axios.post('/auth/proceedToCheckout', { transactionID, studentID });
+
+            } catch (error) {
+
+                console.error('Error during checkout:', error);
+
+            }
+        }
+
+        async function fetchData() {
+
+            try {
+                const response = await axios.get('/auth/api/auth');
+                const userData = response.data[0];
+
+                const nameInput = document.getElementById('fullname');
+                const studentIdInput = document.getElementById('studentId');
+                const phoneInput = document.getElementById('phone');
+                const licensePlateInput = document.getElementById('licensePlate');
+
+                nameInput.value = userData.StudentName;
+                studentIdInput.value = userData.StudentID;
+                phoneInput.value = userData.Phone;
+
+                const licensePlateResponse = await axios.get(`/auth/api/getLicensePlate?studentId=${userData.StudentID}`);
+                const { licensePlate } = licensePlateResponse.data;
+
+                licensePlateInput.value = licensePlate;
+
+                fetchDataAndStartCountdown();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function showPaymentSection() {
+
+            var paymentSection = document.getElementById("paymentSection");
+            paymentSection.style.display = "block";
+
+        }
+
+        window.onload = fetchData; 
+
+    </script>
+    
+</body>
+
+</html>

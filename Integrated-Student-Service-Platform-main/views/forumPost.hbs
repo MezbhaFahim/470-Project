@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Post</title>
+    <link rel="stylesheet" href="/forumPost.css">
+</head>
+<body>
+
+<main>
+    <article class="post" id='postContainer'>
+        <h2 class="post-title" id='Title'></h2>
+        <div class="post-content">
+            <img src="" alt="" id='Image' class="post-image">
+            <p class="post-text" id='Text'></p>
+        </div>
+        <hr>
+        <div class="comments">
+            <h3>Comments</h3>
+        </div>
+        <form id="commentForm" class="comment-form">
+            <textarea name="comment" id="comment" rows="3" placeholder="Write a comment..."></textarea>
+            <button type="submit" id = "postCommentBtn">Post Comment</button>
+        </form>
+        <div id="commentsContainer">
+            <div class="comments-table">
+                <div class="comment-header">
+                    <div class="comment-header-item">Name</div>
+                    <div class="comment-header-item">Comment</div>
+                </div>
+                <div id="commentsTableBody" class="comments-table-body">
+                </div>
+            </div>
+        </div>
+    </article>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    async function fetchPostBasedonID() {
+        try {
+            const postID = location.search.split('=')[1];
+            const response = await axios.get(`/auth/api/PostFetchBasedOnID?id=${postID}`);
+            const post = response.data[0];
+            const titleElement = document.getElementById('Title');
+            const imageElement = document.getElementById('Image');
+            const textElement = document.getElementById('Text');
+
+            titleElement.textContent = post.Title;
+            imageElement.src = post.Picture;
+            textElement.textContent = post.Text;
+
+            await showComment(postID);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+    }
+    fetchPostBasedonID();
+
+    async function commentOnPost(event) {
+        event.preventDefault(); 
+        
+        try {
+            const postID = location.search.split('=')[1];
+            const comment = document.getElementById('comment').value.trim(); 
+            const response = await axios.get('/auth/api/auth');
+            const commentName = response.data[0].StudentName;
+
+            if (comment) {
+                document.getElementById('comment').value = '';
+                await axios.post('/auth/auth/postComment', { postID, comment, commentName });
+                await fetchPostBasedonID();
+            } else {
+                console.error('Comment cannot be empty!');
+            }
+        } catch (error) {
+            console.error('Error posting comment:', error);
+        }
+    }
+
+    document.getElementById('commentForm').addEventListener('submit', commentOnPost);
+
+    async function showComment(postID) {
+
+        try {
+            const response = await axios.post('/auth/showComment', { postID });
+            const comments = response.data.comments;
+
+            const commentsTableBody = document.getElementById('commentsTableBody');
+            commentsTableBody.innerHTML = ''; 
+
+            comments.forEach(comment => {
+                const commentItem = document.createElement('div');
+                commentItem.classList.add('comment-item');
+                commentItem.innerHTML = 
+                    `<div class="comment-data">${comment.Name}</div>
+                    <div class="comment-data">${comment.Comment}</div>`;
+                commentsTableBody.appendChild(commentItem);
+            });
+            
+        } catch (error) {
+            console.error('Error fetching comment:', error);
+        }
+    }
+</script>
+
+</body>
+</html>
